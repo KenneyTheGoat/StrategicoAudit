@@ -1,0 +1,16 @@
+@page "/login"
+
+@model StrategicoAudit.Api.Pages.LoginModel
+
+<h2>Demo Login</h2>
+<p>This is a demo login. It sets a cookie to simulate acting as a User or Admin.</p>
+
+<form method="post">
+  <button type="submit" name="mode" value="user">Act as User</button>
+  <button type="submit" name="mode" value="admin">Act as Admin</button>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.Message))
+{
+  <p><b>@Model.Message</b></p>
+}

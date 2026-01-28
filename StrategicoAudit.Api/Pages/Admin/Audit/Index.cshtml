@@ -1,0 +1,84 @@
+@page "/admin/audit"
+
+@model StrategicoAudit.Api.Pages.Admin.Audit.AuditDashboardModel
+
+<h2>Admin: Audit Dashboard</h2>
+<p><b>Acting as:</b> @Model.ActorDisplay</p>
+
+<h3>Latest Events</h3>
+<table border="1" cellpadding="6">
+  <tr>
+    <th>Time (UTC)</th><th>User</th><th>Action</th><th>Entity</th><th>Success</th><th>RequestId</th>
+  </tr>
+@foreach (var e in Model.Latest)
+{
+  <tr>
+    <td>@e.OccurredAt</td>
+    <td>@(e.ActorName ?? e.ActorUserId.ToString())</td>
+    <td>@e.Action</td>
+    <td>@($"{e.EntityType}:{e.EntityId}")</td>
+    <td>@e.Success</td>
+    <td>@e.RequestId</td>
+  </tr>
+}
+</table>
+
+<hr />
+
+<h3>Query 1: What actions did user X perform last week?</h3>
+<p><b>SQL:</b></p>
+<pre>@Model.SqlUserActions</pre>
+
+<form method="post">
+  <input type="hidden" name="queryName" value="user_actions" />
+  <label>UserId</label>
+  <input name="userId" value="@Model.UserId" />
+  <button type="submit">Run</button>
+</form>
+
+@if (Model.UserActionsRows.Count > 0)
+{
+  <table border="1" cellpadding="6">
+    <tr><th>occurred_at</th><th>action</th><th>entity_type</th><th>entity_id</th><th>success</th><th>request_id</th></tr>
+    @foreach (var r in Model.UserActionsRows)
+    {
+      <tr>
+        <td>@r.OccurredAt</td><td>@r.Action</td><td>@r.EntityType</td><td>@r.EntityId</td><td>@r.Success</td><td>@r.RequestId</td>
+      </tr>
+    }
+  </table>
+}
+
+<hr />
+
+<h3>Query 2: What changed on record Y?</h3>
+<p><b>SQL:</b></p>
+<pre>@Model.SqlEntityHistory</pre>
+
+<form method="post">
+  <input type="hidden" name="queryName" value="entity_history" />
+  <label>EntityType</label>
+  <input name="entityType" value="@Model.EntityType" />
+  <label>EntityId</label>
+  <input name="entityId" value="@Model.EntityId" />
+  <button type="submit">Run</button>
+</form>
+
+@if (Model.EntityHistoryRows.Count > 0)
+{
+  <table border="1" cellpadding="6">
+    <tr><th>occurred_at</th><th>actor_user_id</th><th>action</th><th>changes</th><th>metadata</th><th>request_id</th></tr>
+    @foreach (var r in Model.EntityHistoryRows)
+    {
+      <tr>
+        <td>@r.OccurredAt</td><td>@r.ActorUserId</td><td>@r.Action</td>
+        <td>@r.Changes</td><td>@r.Metadata</td><td>@r.RequestId</td>
+      </tr>
+    }
+  </table>
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.Message))
+{
+  <p><b>@Model.Message</b></p>
+}

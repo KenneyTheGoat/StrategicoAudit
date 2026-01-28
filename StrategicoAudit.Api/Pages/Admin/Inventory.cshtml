@@ -1,0 +1,26 @@
+@page "/admin/inventory"
+
+@model StrategicoAudit.Api.Pages.Admin.InventoryModel
+
+<h2>Inventory Adjustment</h2>
+
+<form method="post">
+  <label>Warehouse</label><br />
+  <input asp-for="WarehouseId" /><br /><br />
+
+  <label>SKU</label><br />
+  <input asp-for="Sku" /><br /><br />
+
+  <label>New On Hand</label><br />
+  <input asp-for="NewOnHand" type="number" /><br /><br />
+
+  <label>Reason</label><br />
+  <input asp-for="Reason" /><br /><br />
+
+  <button type="submit">Adjust</button>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.Message))
+{
+  <p><b>@Model.Message</b></p>
+}
