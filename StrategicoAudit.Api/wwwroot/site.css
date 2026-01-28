@@ -1,0 +1,20 @@
+.card { border: 0; border-radius: 14px; }
+.card.shadow-sm { box-shadow: 0 .25rem 1rem rgba(0,0,0,.08) !important; }
+
+.page-title { font-weight: 700; letter-spacing: .2px; }
+.small-muted { color: #6c757d; font-size: .92rem; }
+
+.json-box {
+  background: #0b1020;
+  color: #cbd5e1;
+  padding: 12px;
+  border-radius: 10px;
+  overflow: auto;
+  max-height: 320px;
+  font-size: .85rem;
+}
+.badge-soft {
+  background: rgba(13,110,253,.12);
+  color: #0d6efd;
+  border: 1px solid rgba(13,110,253,.25);
+}

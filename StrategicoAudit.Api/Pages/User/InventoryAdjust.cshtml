@@ -1,28 +1,47 @@
 @page "/user/inventory-adjust"
-
 @model StrategicoAudit.Api.Pages.User.InventoryAdjustModel
-
-<h2>User Action: Inventory Adjust</h2>
-
-<p><b>Acting as:</b> @Model.ActorDisplay</p>
-
-<form method="post">
-  <label>Warehouse</label><br />
-  <input asp-for="WarehouseId" /><br /><br />
-
-  <label>SKU</label><br />
-  <input asp-for="Sku" /><br /><br />
-
-  <label>New On Hand</label><br />
-  <input asp-for="NewOnHand" type="number" /><br /><br />
-
-  <label>Reason</label><br />
-  <input asp-for="Reason" /><br /><br />
-
-  <button type="submit">Submit Adjustment</button>
-</form>
-
-@if (!string.IsNullOrWhiteSpace(Model.Message))
-{
-  <p><b>@Model.Message</b></p>
+@{
+  ViewData["Title"] = "User Action";
 }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="page-title mb-0">Inventory Adjustment</h2>
+    <div class="small-muted">User performs an operational action → inventory + audit log written.</div>
+  </div>
+  <span class="badge badge-soft">@Model.ActorDisplay</span>
+</div>
+
+<div class="card shadow-sm p-4">
+  <form method="post" class="row g-3">
+    <div class="col-md-4">
+      <label class="form-label">Warehouse</label>
+      <input class="form-control" asp-for="WarehouseId" />
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">SKU</label>
+      <input class="form-control" asp-for="Sku" />
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">New On Hand</label>
+      <input class="form-control" asp-for="NewOnHand" type="number" />
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Reason</label>
+      <input class="form-control" asp-for="Reason" />
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+      <button class="btn btn-primary" type="submit">Submit Adjustment</button>
+      <a class="btn btn-outline-secondary" href="/admin/audit">Go to Admin Audit</a>
+    </div>
+  </form>
+
+  @if (!string.IsNullOrWhiteSpace(Model.Message))
+  {
+    <div class="alert alert-success mt-3 mb-0">@Model.Message</div>
+  }
+</div>

@@ -1,16 +1,30 @@
 @page "/login"
-
 @model StrategicoAudit.Api.Pages.LoginModel
-
-<h2>Demo Login</h2>
-<p>This is a demo login. It sets a cookie to simulate acting as a User or Admin.</p>
-
-<form method="post">
-  <button type="submit" name="mode" value="user">Act as User</button>
-  <button type="submit" name="mode" value="admin">Act as Admin</button>
-</form>
-
-@if (!string.IsNullOrWhiteSpace(Model.Message))
-{
-  <p><b>@Model.Message</b></p>
+@{
+  ViewData["Title"] = "Login";
 }
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm p-4">
+      <h2 class="page-title mb-2">Demo Login</h2>
+      <p class="small-muted mb-4">
+        No real authentication. This sets a cookie to simulate acting as a User or Admin.
+      </p>
+
+      <form method="post" class="d-grid gap-2">
+        <button class="btn btn-primary" type="submit" name="mode" value="user">
+          Act as User
+        </button>
+        <button class="btn btn-outline-primary" type="submit" name="mode" value="admin">
+          Act as Admin
+        </button>
+      </form>
+
+      @if (!string.IsNullOrWhiteSpace(Model.Message))
+      {
+        <div class="alert alert-info mt-4 mb-0">@Model.Message</div>
+      }
+    </div>
+  </div>
+</div>

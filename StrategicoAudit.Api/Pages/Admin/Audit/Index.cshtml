@@ -1,84 +1,231 @@
 @page "/admin/audit"
-
 @model StrategicoAudit.Api.Pages.Admin.Audit.AuditDashboardModel
-
-<h2>Admin: Audit Dashboard</h2>
-<p><b>Acting as:</b> @Model.ActorDisplay</p>
-
-<h3>Latest Events</h3>
-<table border="1" cellpadding="6">
-  <tr>
-    <th>Time (UTC)</th><th>User</th><th>Action</th><th>Entity</th><th>Success</th><th>RequestId</th>
-  </tr>
-@foreach (var e in Model.Latest)
-{
-  <tr>
-    <td>@e.OccurredAt</td>
-    <td>@(e.ActorName ?? e.ActorUserId.ToString())</td>
-    <td>@e.Action</td>
-    <td>@($"{e.EntityType}:{e.EntityId}")</td>
-    <td>@e.Success</td>
-    <td>@e.RequestId</td>
-  </tr>
-}
-</table>
-
-<hr />
-
-<h3>Query 1: What actions did user X perform last week?</h3>
-<p><b>SQL:</b></p>
-<pre>@Model.SqlUserActions</pre>
-
-<form method="post">
-  <input type="hidden" name="queryName" value="user_actions" />
-  <label>UserId</label>
-  <input name="userId" value="@Model.UserId" />
-  <button type="submit">Run</button>
-</form>
-
-@if (Model.UserActionsRows.Count > 0)
-{
-  <table border="1" cellpadding="6">
-    <tr><th>occurred_at</th><th>action</th><th>entity_type</th><th>entity_id</th><th>success</th><th>request_id</th></tr>
-    @foreach (var r in Model.UserActionsRows)
-    {
-      <tr>
-        <td>@r.OccurredAt</td><td>@r.Action</td><td>@r.EntityType</td><td>@r.EntityId</td><td>@r.Success</td><td>@r.RequestId</td>
-      </tr>
-    }
-  </table>
+@{
+    ViewData["Title"] = "Admin Audit Dashboard";
 }
 
-<hr />
+<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
+    <div>
+        <h2 class="page-title mb-1">Admin: Audit Dashboard</h2>
+        <div class="small-muted">
+            Investigate actions and record history using the audit log.
+        </div>
+    </div>
 
-<h3>Query 2: What changed on record Y?</h3>
-<p><b>SQL:</b></p>
-<pre>@Model.SqlEntityHistory</pre>
-
-<form method="post">
-  <input type="hidden" name="queryName" value="entity_history" />
-  <label>EntityType</label>
-  <input name="entityType" value="@Model.EntityType" />
-  <label>EntityId</label>
-  <input name="entityId" value="@Model.EntityId" />
-  <button type="submit">Run</button>
-</form>
-
-@if (Model.EntityHistoryRows.Count > 0)
-{
-  <table border="1" cellpadding="6">
-    <tr><th>occurred_at</th><th>actor_user_id</th><th>action</th><th>changes</th><th>metadata</th><th>request_id</th></tr>
-    @foreach (var r in Model.EntityHistoryRows)
-    {
-      <tr>
-        <td>@r.OccurredAt</td><td>@r.ActorUserId</td><td>@r.Action</td>
-        <td>@r.Changes</td><td>@r.Metadata</td><td>@r.RequestId</td>
-      </tr>
-    }
-  </table>
-}
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge badge-soft">@Model.ActorDisplay</span>
+        <a class="btn btn-sm btn-outline-secondary" href="/login">Switch User</a>
+    </div>
+</div>
 
 @if (!string.IsNullOrWhiteSpace(Model.Message))
 {
-  <p><b>@Model.Message</b></p>
+    <div class="alert alert-warning mb-3">@Model.Message</div>
 }
+
+<div class="row g-3">
+    <!-- Latest Events -->
+    <div class="col-12">
+        <div class="card shadow-sm p-3 p-md-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h4 class="mb-0">Latest Events</h4>
+                <span class="small-muted">Showing latest @Model.Latest.Count events</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="white-space:nowrap;">Time (UTC)</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Success</th>
+                            <th>RequestId</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var e in Model.Latest)
+                    {
+                        <tr>
+                            <td style="white-space:nowrap;">@e.OccurredAt</td>
+                            <td>@(e.ActorName ?? e.ActorUserId.ToString())</td>
+                            <td><span class="badge text-bg-secondary">@e.Action</span></td>
+                            <td class="text-muted">@($"{e.EntityType}:{e.EntityId}")</td>
+                            <td>
+                                @if (e.Success)
+                                {
+                                    <span class="badge text-bg-success">OK</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-danger">FAIL</span>
+                                }
+                            </td>
+                            <td class="text-muted" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                @e.RequestId
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Query 1 -->
+    <div class="col-12 col-lg-6">
+        <div class="card shadow-sm p-3 p-md-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="mb-0">Query 1</h4>
+                <span class="badge badge-soft">User Activity</span>
+            </div>
+
+            <div class="small-muted mb-2">
+                What actions did user <b>X</b> perform last week?
+            </div>
+
+            <div class="mb-3">
+                <div class="small-muted mb-1"><b>SQL</b></div>
+                <pre class="json-box">@Model.SqlUserActions</pre>
+            </div>
+
+            <form method="post" class="row g-2 align-items-end">
+                <input type="hidden" name="queryName" value="user_actions" />
+                <div class="col-12 col-md-8">
+                    <label class="form-label mb-1">UserId</label>
+                    <input class="form-control" name="userId" value="@Model.UserId" />
+                </div>
+                <div class="col-12 col-md-4 d-grid">
+                    <button class="btn btn-primary" type="submit">Run</button>
+                </div>
+            </form>
+
+            @if (Model.UserActionsRows.Count > 0)
+            {
+                <hr class="my-3" />
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="white-space:nowrap;">occurred_at</th>
+                                <th>action</th>
+                                <th>entity_type</th>
+                                <th>entity_id</th>
+                                <th>success</th>
+                                <th>request_id</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var r in Model.UserActionsRows)
+                        {
+                            <tr>
+                                <td style="white-space:nowrap;">@r.OccurredAt</td>
+                                <td><span class="badge text-bg-secondary">@r.Action</span></td>
+                                <td class="text-muted">@r.EntityType</td>
+                                <td class="text-muted">@r.EntityId</td>
+                                <td>
+                                    @if (r.Success)
+                                    {
+                                        <span class="badge text-bg-success">OK</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-danger">FAIL</span>
+                                    }
+                                </td>
+                                <td class="text-muted" style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    @r.RequestId
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="small-muted mt-3">Run the query to see results.</div>
+            }
+        </div>
+    </div>
+
+    <!-- Query 2 -->
+    <div class="col-12 col-lg-6">
+        <div class="card shadow-sm p-3 p-md-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="mb-0">Query 2</h4>
+                <span class="badge badge-soft">Record History</span>
+            </div>
+
+            <div class="small-muted mb-2">
+                What changed on record <b>Y</b>?
+            </div>
+
+            <div class="mb-3">
+                <div class="small-muted mb-1"><b>SQL</b></div>
+                <pre class="json-box">@Model.SqlEntityHistory</pre>
+            </div>
+
+            <form method="post" class="row g-2 align-items-end">
+                <input type="hidden" name="queryName" value="entity_history" />
+
+                <div class="col-12 col-md-5">
+                    <label class="form-label mb-1">EntityType</label>
+                    <input class="form-control" name="entityType" value="@Model.EntityType" />
+                </div>
+
+                <div class="col-12 col-md-5">
+                    <label class="form-label mb-1">EntityId</label>
+                    <input class="form-control" name="entityId" value="@Model.EntityId" />
+                </div>
+
+                <div class="col-12 col-md-2 d-grid">
+                    <button class="btn btn-primary" type="submit">Run</button>
+                </div>
+            </form>
+
+            @if (Model.EntityHistoryRows.Count > 0)
+            {
+                <hr class="my-3" />
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="white-space:nowrap;">occurred_at</th>
+                                <th>actor_user_id</th>
+                                <th>action</th>
+                                <th>changes</th>
+                                <th>metadata</th>
+                                <th>request_id</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var r in Model.EntityHistoryRows)
+                        {
+                            <tr>
+                                <td style="white-space:nowrap;">@r.OccurredAt</td>
+                                <td class="text-muted">@r.ActorUserId</td>
+                                <td><span class="badge text-bg-secondary">@r.Action</span></td>
+                                <td style="min-width:240px;">
+                                    <pre class="json-box mb-0">@r.Changes</pre>
+                                </td>
+                                <td style="min-width:240px;">
+                                    <pre class="json-box mb-0">@r.Metadata</pre>
+                                </td>
+                                <td class="text-muted" style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    @r.RequestId
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="small-muted mt-3">Run the query to see results.</div>
+            }
+        </div>
+    </div>
+</div>
