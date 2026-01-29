@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# StrategicoAudit
-Admin Action Audit application
-=======
 #  Admin Action Audit – Demo System
 
 A lightweight, end-to-end **Admin Action Audit** system designed for operational traceability in supply-chain environments.
@@ -103,4 +99,4 @@ Open:
 - /login
 - /user/inventory-adjust
 - /admin/audit
->>>>>>> 34a4b95e94029f4854c8d34443782ab1c17713d1
+
